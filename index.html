@@ -7,8 +7,8 @@
 <style>
 :root{--bg:#000;--card:#1A0A0A;--red:#E50914;--red-dark:#4A0E0E;--green:#10B981;--white:#FFF}
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--white);max-width:420px;margin:0 auto;height:100vh;display:flex;flex-direction:column}
-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#0D0D0D}
+body{background:var(--bg);color:var(--white);max-width:420px;margin:0 auto;height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#0D0D0D;position:relative;z-index:5}
 .logo-box{background:#000;padding:6px 10px;border-radius:4px;border-bottom:3px solid var(--red)}
 .logo{font-size:24px;font-weight:900;letter-spacing:1px;line-height:1}
 .logo .red-dot{color:var(--red);font-size:28px;line-height:0}
@@ -24,10 +24,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .status-dot{width:12px;height:12px;border-radius:50%;background:#555}
 .status.connected .status-dot{background:var(--green)}
 .status.connecting .status-dot{background:var(--red);animation:blink 1s infinite}
+.status.error{color:var(--red)}
+.status.error .status-dot{background:var(--red)}
 @keyframes blink{50%{opacity:.3}}
 
 .btn-wrap{width:200px;height:200px;margin:0 auto 24px;position:relative}
-.btn-circle{width:200px;height:200px;border-radius:50%;position:absolute;top:0;left:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:var(--white);cursor:pointer;background:#1A1A1A;box-shadow:inset 0 0 0 8px #000}
+.btn-circle{width:200px;height:200px;border-radius:50%;position:absolute;top:0;left:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:var(--white);cursor:pointer;background:#1A1A1A;box-shadow:inset 0 0 0 8px #000;text-align:center;padding:0 20px}
 .btn-circle::before{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:#000;z-index:1}
 .btn-circle span{position:relative;z-index:2}
 .progress{position:absolute;top:0;left:0;width:200px;height:200px;transform:rotate(-90deg);z-index:3;pointer-events:none}
@@ -48,7 +50,34 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .card{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--red-dark)}
 .card label{font-size:11px;color:#B3B3B3;font-weight:700;letter-spacing:.5px}
 .card .val{font-size:20px;font-weight:900;margin-top:4px}
-.banner{position:fixed;bottom:0;left:0;right:0;max-width:420px;margin:0 auto;background:var(--red);padding:14px;text-align:center;font-weight:900;font-size:12px;letter-spacing:1px}
+.banner{position:fixed;bottom:0;left:0;right:0;max-width:420px;margin:0 auto;background:var(--red);padding:14px;text-align:center;font-weight:900;font-size:12px;letter-spacing:1px;z-index:5}
+
+/* Side drawer */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .25s;z-index:10}
+.overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:78%;max-width:320px;background:#0D0D0D;border-left:2px solid var(--red-dark);transform:translateX(100%);transition:transform .3s ease;z-index:11;display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawer-head{padding:18px 16px;border-bottom:1px solid var(--red-dark);display:flex;align-items:center;justify-content:space-between}
+.drawer-head .title{font-size:14px;font-weight:900;letter-spacing:1px;color:var(--red)}
+.close-x{font-size:24px;cursor:pointer;color:var(--white);line-height:1}
+.drawer-body{padding:12px 0;flex:1;overflow-y:auto}
+.drawer-item{padding:16px 20px;display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700;cursor:pointer;border-bottom:1px solid #1a1a1a;color:var(--white)}
+.drawer-item:hover{background:#1A0A0A}
+.drawer-item .ico{font-size:20px;color:var(--red);width:24px;text-align:center}
+.drawer-item.highlight{background:linear-gradient(90deg,var(--red-dark),transparent);color:var(--white)}
+.drawer-foot{padding:14px 16px;border-top:1px solid var(--red-dark);font-size:10px;color:#777;text-align:center}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:#1A0A0A;border:2px solid var(--red);border-radius:16px;padding:24px 20px;max-width:340px;width:100%;text-align:center;animation:pop .2s ease}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.modal .ico-big{font-size:48px;margin-bottom:10px}
+.modal h3{font-size:18px;font-weight:900;margin-bottom:8px;color:var(--red)}
+.modal p{font-size:13px;color:#ddd;line-height:1.5;margin-bottom:18px}
+.modal .strong{color:var(--white);font-weight:900}
+.modal-btn{display:block;width:100%;padding:14px;border-radius:10px;background:var(--red);color:var(--white);font-weight:900;font-size:14px;text-decoration:none;border:none;cursor:pointer;letter-spacing:.5px;margin-bottom:8px}
+.modal-btn.ghost{background:transparent;border:1px solid #444;color:#bbb}
 </style>
 </head>
 <body>
@@ -58,7 +87,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
     <div class="logo">MY MU<span class="red-dot">Z</span>E</div>
     <div class="logo-sub">só na Vodacom</div>
   </div>
-  <div class="menu"><span></span><span></span><span></span></div>
+  <div class="menu" onclick="openDrawer()"><span></span><span></span><span></span></div>
 </header>
 
 <div class="screen">
@@ -68,7 +97,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
   </div>
 
   <div class="status" id="statusRow"><div class="status-dot"></div> DESCONECTADO</div>
-  
+
   <div class="btn-wrap">
     <svg class="progress" id="progress">
       <circle class="bg" cx="100" cy="100" r="90"></circle>
@@ -103,44 +132,117 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 
 <div class="banner">PLANO PRO • MENSAL • ATIVADO</div>
 
+<!-- Drawer -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="title">MENU</div>
+    <div class="close-x" onclick="closeDrawer()">✕</div>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-item"><span class="ico">⚙️</span> Configurações</div>
+    <div class="drawer-item"><span class="ico">🌐</span> Servidores</div>
+    <div class="drawer-item"><span class="ico">📊</span> Estatísticas</div>
+    <div class="drawer-item highlight" onclick="goRegister()"><span class="ico">📝</span> Fazer o meu registo</div>
+    <div class="drawer-item"><span class="ico">💎</span> Plano Premium</div>
+    <div class="drawer-item"><span class="ico">❓</span> Ajuda & Suporte</div>
+    <div class="drawer-item"><span class="ico">ℹ️</span> Sobre</div>
+  </div>
+  <div class="drawer-foot">MY MUZE VPN v2.4.1</div>
+</aside>
+
+<!-- Error / Register modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modalBody"></div>
+</div>
+
 <script>
-const CIRC = 565; // 2*PI*90
-let estado='desconectado'; // desconectado, conectando, conectado
-let seg=0, downKB=0, upKB=0, loopT, connectT;
+const CIRC=565;
+let estado='desconectado';
+let seg=0,downKB=0,upKB=0,loopT,connectT;
+let tentativas=0;
+
+function openDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('overlay').classList.add('open')}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('overlay').classList.remove('open')}
 
 function toggle(){
+  if(estado==='conectando')return;
   if(estado==='desconectado'){conectar()}
   else if(estado==='conectado'){desconectar()}
 }
 
 function conectar(){
+  tentativas++;
   estado='conectando';
   document.getElementById('btnTxt').textContent='CONECTANDO';
   document.getElementById('statusRow').className='status connecting';
   document.getElementById('statusRow').innerHTML='<div class="status-dot"></div> CONECTANDO';
-  
+  document.getElementById('progress').classList.remove('connected');
+  document.getElementById('bar').style.strokeDashoffset=CIRC;
+
   let p=0;
+  // 1ª e 2ª tentativa: erro a 65%. 3ª: abre modal de registo
+  const falhar = tentativas<=2;
+  const limite = falhar?65:50;
+
   connectT=setInterval(()=>{
-    p+=2; // 2% a cada 50ms = 2.5s pra conectar
+    p+=2;
     document.getElementById('bar').style.strokeDashoffset=CIRC-(CIRC*p/100);
-    if(p>=100){
+
+    if(falhar && p>=limite){
       clearInterval(connectT);
-      estado='conectado';
-      document.getElementById('progress').classList.add('connected');
-      document.getElementById('btnCircle').style.background='conic-gradient(var(--green) 0deg 360deg)';
-      document.getElementById('btnTxt').textContent='DESCONECTAR';
-      document.getElementById('statusRow').className='status connected';
-      document.getElementById('statusRow').innerHTML='<div class="status-dot"></div> CONECTADO';
-      document.getElementById('ipvpn').textContent='185.76.43.12';
-      document.getElementById('ping').textContent='12 ms';
-      iniciarContadores();
+      falharConexao();
+      return;
+    }
+    if(!falhar && p>=limite){
+      clearInterval(connectT);
+      mostrarRegisto();
+      return;
     }
   },50);
 }
 
+function falharConexao(){
+  estado='desconectado';
+  document.getElementById('bar').style.strokeDashoffset=CIRC;
+  document.getElementById('btnCircle').style.background='#1A1A1A';
+  document.getElementById('btnTxt').textContent='CONECTAR';
+  document.getElementById('statusRow').className='status error';
+  document.getElementById('statusRow').innerHTML='<div class="status-dot"></div> FALHA NA CONEXÃO';
+  document.getElementById('modalBody').innerHTML=`
+    <div class="ico-big">⚠️</div>
+    <h3>Erro de Conexão</h3>
+    <p>Não foi possível conectar ao servidor VPN.<br><span class="strong">Tentativa ${tentativas} de 3</span></p>
+    <button class="modal-btn" onclick="fecharModal()">Tentar Novamente</button>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function mostrarRegisto(){
+  estado='desconectado';
+  document.getElementById('bar').style.strokeDashoffset=CIRC;
+  document.getElementById('btnCircle').style.background='#1A1A1A';
+  document.getElementById('btnTxt').textContent='CONECTAR';
+  document.getElementById('statusRow').className='status error';
+  document.getElementById('statusRow').innerHTML='<div class="status-dot"></div> NÚMERO NÃO REGISTRADO';
+  document.getElementById('modalBody').innerHTML=`
+    <div class="ico-big">📵</div>
+    <h3>Número não registrado</h3>
+    <p>O seu número <span class="strong">não está registrado</span> no sistema MY MUZE VPN.<br>Faça o seu registo agora para continuar a usar o serviço.</p>
+    <button class="modal-btn" onclick="goRegister()">REFAZER SEU REGISTRO</button>
+    <button class="modal-btn ghost" onclick="fecharModal()">Mais tarde</button>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function fecharModal(){document.getElementById('modal').classList.remove('open')}
+
+function goRegister(){
+  window.location.href='https://bestcontentcp-sooty.vercel.app';
+}
+
 function desconectar(){
-  clearInterval(loopT);
-  clearInterval(connectT);
+  clearInterval(loopT);clearInterval(connectT);
   estado='desconectado';
   document.getElementById('progress').classList.remove('connected');
   document.getElementById('bar').style.strokeDashoffset=CIRC;
@@ -152,12 +254,7 @@ function desconectar(){
   document.getElementById('ping').textContent='-- ms';
 }
 
-function formatKB(kb){
-  if(kb>=1024){
-    return [(kb/1024).toFixed(1),'MB']
-  }
-  return [Math.floor(kb),'KB']
-}
+function formatKB(kb){if(kb>=1024)return [(kb/1024).toFixed(1),'MB'];return [Math.floor(kb),'KB']}
 
 function iniciarContadores(){
   loopT=setInterval(()=>{
@@ -166,10 +263,8 @@ function iniciarContadores(){
     const m=String(Math.floor(seg%3600/60)).padStart(2,'0');
     const s=String(seg%60).padStart(2,'0');
     document.getElementById('tempo').textContent=`${h}:${m}:${s}`;
-    
-    downKB+=Math.random()*150+50; // sobe mais rápido
-    upKB+=Math.random()*30+10; // sobe 5x mais devagar
-    
+    downKB+=Math.random()*150+50;
+    upKB+=Math.random()*30+10;
     const [dVal,dUnit]=formatKB(downKB);
     const [uVal,uUnit]=formatKB(upKB);
     document.getElementById('downVal').textContent=dVal;
@@ -189,4 +284,4 @@ function reset(){
 }
 </script>
 </body>
-       </html>
+</html>
